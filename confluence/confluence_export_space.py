@@ -70,18 +70,18 @@ def get_page(page_id: int, page_path: str):
     fh.close()
 
     # stash page properties and attachments in subdir
-    print(f'Exporting page metadata: {d}/{f}/')
-    os.makedirs(f'{d}/{f}', exist_ok=True)
+    print(f'Exporting page metadata: {d}/{f}.meta/')
+    os.makedirs(f'{d}/{f}.meta', exist_ok=True)
 
-    c.download_attachments_from_page(page_id, f'{d}/{f}')
+    c.download_attachments_from_page(page_id, f'{d}/{f}.meta')
 
-    with open(f'{d}/{f}/{page_id}.labels.json', "w") as fh:
+    with open(f'{d}/{f}.meta/{page_id}.labels.json', "w") as fh:
         json.dump(c.get_page_labels(page_id), fh)
 
-    with open(f'{d}/{f}/{page_id}.properties.json', "w") as fh:
+    with open(f'{d}/{f}.meta/{page_id}.properties.json', "w") as fh:
         json.dump(c.get_page_properties(page_id), fh)
 
-    with open(f'{d}/{f}/{page_id}.comments.json', "w") as fh:
+    with open(f'{d}/{f}.meta/{page_id}.comments.json', "w") as fh:
         json.dump(c.get_page_comments(page_id), fh)
 
 def main():
