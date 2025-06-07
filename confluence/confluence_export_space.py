@@ -17,6 +17,7 @@
 from atlassian import Confluence
 from itertools import repeat
 from multiprocessing.dummy import Pool as ThreadPool
+import json
 import os
 import re
 import sys
@@ -44,8 +45,8 @@ def get_page_path(page_id: int, page_path: str):
     """
     title = f'{re.sub(r"[^-_0-9A-Za-z]+", "_", c.get_page_by_id(page_id)["title"])}'
 
-    debug(f'Adding: {page_id:-12d} {page_path}/{title}.pdf')
-    page_id_path[page_id] = f'{page_path}/{title}.pdf'
+    debug(f'Adding: {page_id:-12d} {page_path}/{title}')
+    page_id_path[page_id] = f'{page_path}/{title}'
     page_ids.append(page_id)
 
     for page in c.get_child_pages(page_id):
@@ -61,12 +62,27 @@ def get_page(page_id: int, page_path: str):
     d = os.path.dirname(page_path)
     f = os.path.basename(page_path)
 
-    print(f'Exporting page to PDF: {d}/{f}')
+    print(f'Exporting page to PDF: {d}/{f}.pdf')
     os.makedirs(d, exist_ok=True)
 
-    fh = open(f'{d}/{f}', "wb")
+    fh = open(f'{d}/{f}.pdf', "wb")
     chars = fh.write(c.export_page(page_id))
     fh.close()
+
+    # stash page properties and attachments in subdir
+    print(f'Exporting page metadata: {d}/{f}/')
+    os.makedirs(f'{d}/{f}', exist_ok=True)
+
+    c.download_attachments_from_page(page_id, f'{d}/{f}')
+
+    with open(f'{d}/{f}/{page_id}.labels.json', "w") as fh:
+        json.dump(c.get_page_labels(page_id), fh)
+
+    with open(f'{d}/{f}/{page_id}.properties.json', "w") as fh:
+        json.dump(c.get_page_properties(page_id), fh)
+
+    with open(f'{d}/{f}/{page_id}.comments.json', "w") as fh:
+        json.dump(c.get_page_comments(page_id), fh)
 
 def main():
     global page_ids
@@ -87,7 +103,7 @@ def main():
 
         debug('Exporting home page')
         home_page_id = int(c.get_space(space)["homepage"]["id"])
-        get_page(home_page_id, f'{space}/_Overview.pdf')
+        get_page(home_page_id, f'{space}/_Overview')
         page_id_path = {}
 
         print('Generating page hierarchy')
