@@ -73,7 +73,10 @@ def get_page(page_id: int, page_path: str):
     print(f'Exporting page metadata: {d}/{f}.meta/')
     os.makedirs(f'{d}/{f}.meta', exist_ok=True)
 
-    c.download_attachments_from_page(page_id, f'{d}/{f}.meta')
+    try:
+        c.download_attachments_from_page(page_id, f'{d}/{f}.meta')
+    except:
+        pass
 
     with open(f'{d}/{f}.meta/{page_id}.labels.json', "w") as fh:
         json.dump(c.get_page_labels(page_id), fh)
