@@ -78,8 +78,8 @@ def get_page(page_id: int, page_path: str):
     with open(f'{d}/{f}.meta/{page_id}.labels.json', "w") as fh:
         json.dump(c.get_page_labels(page_id), fh)
 
-    with open(f'{d}/{f}.meta/{page_id}.properties.json', "w") as fh:
-        json.dump(c.get_page_properties(page_id), fh)
+    with open(f'{d}/{f}.meta/{page_id}.metadata.json', "w") as fh:
+        json.dump(c.get_page_by_id(page_id), fh)
 
     with open(f'{d}/{f}.meta/{page_id}.comments.json', "w") as fh:
         json.dump(c.get_page_comments(page_id), fh)
